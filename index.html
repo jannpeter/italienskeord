@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Italiensk" />
+<title>Italienske ord</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --card: #ffffff;
+    --accent: #3b2f8f;
+    --accent-light: #ece9fb;
+    --accent-mid: #7c6fd4;
+    --text: #1a1723;
+    --muted: #6b6480;
+    --border: #e2ddf5;
+    --green: #1a6b4a;
+    --green-bg: #e4f5ed;
+    --green-border: #a3d9be;
+    --red: #8f2f2f;
+    --red-bg: #fbe9e9;
+    --red-border: #e8b4b4;
+    --sentence-border: #c4bcea;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    padding: 0 1rem calc(4rem + env(safe-area-inset-bottom, 0px));
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    padding: 2rem 0 1.5rem;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    max-width: 620px;
+    margin: 0 auto 2rem;
+    display: flex;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 11px 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: white;
+    font-weight: 500;
+  }
+
+  /* ── Shared card ── */
+  .card {
+    max-width: 620px;
+    margin: 0 auto 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.75rem 1.5rem;
+  }
+
+  /* ── Part 1: kontekstkort ── */
+  .controls {
+    max-width: 620px;
+    margin: 0 auto 1.2rem;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-wrap { flex: 1; min-width: 200px; }
+  .search-wrap input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    font-size: 16px;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .search-wrap input:focus { border-color: var(--accent-mid); }
+
+  .prog-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .prog-track {
+    width: 80px; height: 4px;
+    background: var(--border);
+    border-radius: 2px; overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  .it-word {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .no-word {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+  .speak-btn {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--accent-light);
+    color: var(--accent);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 4px;
+    touch-action: manipulation;
+  }
+  .speak-btn:hover { background: var(--border); }
+  .speak-btn:active { transform: scale(0.93); }
+  .speak-btn.speaking { background: var(--accent); color: white; }
+
+  .sentences { display: flex; flex-direction: column; gap: 14px; }
+  .sent-block {
+    border-left: 2px solid var(--sentence-border);
+    padding-left: 14px;
+  }
+  .sent-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .sent-texts { flex: 1; }
+  .sent-it { font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+  .sent-it b { color: var(--accent); font-weight: 500; }
+  .sent-no { font-size: 0.82rem; color: var(--muted); font-style: italic; line-height: 1.5; margin-top: 2px; }
+  .sent-speak {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    margin-top: 2px;
+    touch-action: manipulation;
+  }
+  .sent-speak:hover { background: var(--accent-light); color: var(--accent); }
+  .sent-speak.speaking { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .known-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 1rem;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-size: 0.8rem; color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+    min-height: 36px;
+  }
+  .known-badge:hover { border-color: var(--sentence-border); color: var(--accent); }
+  .known-badge.marked { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .known-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+  .nav-row {
+    max-width: 620px;
+    margin: 0 auto;
+    display: flex; gap: 10px;
+  }
+  .nav-btn {
+    flex: 1; padding: 13px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: white;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 0.9rem; color: var(--text);
+    cursor: pointer;
+    transition: background 0.12s;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+  .nav-btn:hover { background: var(--accent-light); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; background: white; }
+  .nav-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .nav-btn.primary:hover { background: #2e2370; }
+
+  .no-results {
+    max-width: 620px; margin: 0 auto;
+    text-align: center; padding: 3rem;
+    color: var(--muted); font-size: 0.9rem;
+  }
+  .tts-warning {
+    max-width: 620px; margin: 0 auto 1.2rem;
+    padding: 10px 14px;
+    background: #fff8e1; border: 1px solid #ffe082;
+    border-radius: 10px; font-size: 0.82rem; color: #7a5c00;
+    display: none;
+  }
+
+  /* ── Part 2: Quiz ── */
+  #quiz-section { display: none; }
+
+  .quiz-topbar {
+    max-width: 620px;
+    margin: 0 auto 1.2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .quiz-stats {
+    display: flex; gap: 16px; font-size: 0.85rem;
+  }
+  .qstat { display: flex; align-items: center; gap: 5px; }
+  .qstat-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .qstat-dot.c { background: #1a6b4a; }
+  .qstat-dot.w { background: #8f2f2f; }
+  .qstat-dot.r { background: var(--accent); }
+
+  .quiz-restart-btn {
+    padding: 9px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 0.82rem; color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+    min-height: 36px;
+  }
+  .quiz-restart-btn:hover { border-color: var(--accent-mid); color: var(--accent); }
+
+  .quiz-prog-track {
+    max-width: 620px; margin: 0 auto 1.2rem;
+    height: 4px; background: var(--border);
+    border-radius: 2px; overflow: hidden;
+  }
+  .quiz-prog-fill {
+    height: 100%; background: var(--accent);
+    border-radius: 2px; transition: width 0.4s;
+  }
+
+  .quiz-card { max-width: 620px; margin: 0 auto 1rem; }
+
+  .quiz-word-box {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+  }
+  .quiz-it-word {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; font-weight: 700;
+    color: var(--accent);
+  }
+  .quiz-speak-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--accent-light); color: var(--accent);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+  .quiz-speak-btn:hover { background: var(--border); }
+  .quiz-speak-btn.speaking { background: var(--accent); color: white; }
+
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 15px 18px;
+    font-size: 1rem;
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    text-align: left;
+    transition: border-color 0.12s, background 0.12s;
+    display: flex; align-items: center; gap: 12px;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+    min-height: 52px;
+  }
+  .quiz-option:hover:not(.answered) { border-color: var(--accent-mid); background: var(--accent-light); }
+  .quiz-option.correct {
+    border-color: var(--green);
+    background: var(--green-bg);
+    color: var(--green);
+  }
+  .quiz-option.wrong {
+    border-color: var(--red);
+    background: var(--red-bg);
+    color: var(--red);
+  }
+  .quiz-option.show-correct {
+    border-color: var(--green);
+    background: var(--green-bg);
+    color: var(--green);
+    opacity: 0.7;
+  }
+  .opt-letter {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 500;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  .quiz-feedback {
+    max-width: 620px; margin: 0 auto 1rem;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .quiz-feedback.correct { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); }
+  .quiz-feedback.wrong { background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red); }
+
+  .quiz-next-btn {
+    max-width: 620px; margin: 0 auto;
+    display: none;
+    width: 100%;
+    padding: 15px;
+    border-radius: 14px;
+    border: none;
+    background: var(--accent); color: white;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 1rem; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+  .quiz-next-btn:hover { background: #2e2370; }
+
+  /* Results screen */
+  .quiz-results {
+    max-width: 620px; margin: 0 auto;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    display: none;
+  }
+  .results-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; font-weight: 700;
+    color: var(--accent); margin-bottom: 0.5rem;
+  }
+  .results-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; }
+  .results-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin-bottom: 2rem;
+  }
+  .res-stat {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 1rem 0.5rem;
+  }
+  .res-num { font-size: 2rem; font-weight: 500; }
+  .res-num.c { color: var(--green); }
+  .res-num.w { color: var(--red); }
+  .res-num.t { color: var(--accent); }
+  .res-label { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .results-restart {
+    padding: 13px 2rem;
+    border-radius: 14px;
+    border: none;
+    background: var(--accent); color: white;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 1rem; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-right: 10px;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+  .results-restart:hover { background: #2e2370; }
+  .results-review {
+    padding: 13px 2rem;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: white; color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+  .results-review:hover { background: var(--accent-light); }
+
+  .wrong-list {
+    max-width: 620px; margin: 1.5rem auto 0;
+    display: none;
+  }
+  .wrong-list-title {
+    font-size: 0.85rem; color: var(--muted);
+    margin-bottom: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .wrong-item {
+    background: white; border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px;
+    margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.9rem;
+  }
+  .wrong-item-it { font-weight: 500; color: var(--accent); font-family: 'Playfair Display', serif; font-size: 1rem; }
+  .wrong-item-no { color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Italienske ord</h1>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('cards')">Del 1 — Kontekstkort</button>
+  <button class="tab-btn" onclick="switchTab('quiz')">Del 2 — Quiz</button>
+</div>
+
+<!-- ════════════════════════════════
+     DEL 1: KONTEKSTKORT
+════════════════════════════════ -->
+<div id="cards-section">
+  <div class="tts-warning" id="tts-warning"></div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Søk etter ord..." oninput="doSearch()" />
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <span id="prog-label">1 / 90</span>
+    </div>
+  </div>
+
+  <div id="cards-main"></div>
+
+  <div class="nav-row" id="nav-row">
+    <button class="nav-btn" id="btn-prev" onclick="go(-1)">← Forrige</button>
+    <button class="nav-btn primary" id="btn-next" onclick="go(1)">Neste →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     DEL 2: QUIZ
+════════════════════════════════ -->
+<div id="quiz-section">
+  <div class="quiz-topbar">
+    <div class="quiz-stats">
+      <div class="qstat"><div class="qstat-dot c"></div><span id="q-correct">0</span> riktige</div>
+      <div class="qstat"><div class="qstat-dot w"></div><span id="q-wrong">0</span> feil</div>
+      <div class="qstat"><div class="qstat-dot r"></div><span id="q-remain">90</span> igjen</div>
+    </div>
+    <button class="quiz-restart-btn" onclick="startQuiz()">Start på nytt</button>
+  </div>
+
+  <div class="quiz-prog-track">
+    <div class="quiz-prog-fill" id="quiz-prog-fill" style="width:0%"></div>
+  </div>
+
+  <div id="quiz-card-area">
+    <div class="quiz-card">
+      <div class="quiz-word-box">
+        <div class="quiz-it-word" id="q-word"></div>
+        <button class="quiz-speak-btn" id="q-speak-btn" onclick="quizSpeak()" title="Hør ordet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+      </div>
+      <div class="quiz-options" id="q-options"></div>
+    </div>
+
+    <div class="quiz-feedback" id="q-feedback"></div>
+    <button class="quiz-next-btn" id="q-next-btn" onclick="nextQuestion()">Neste spørsmål →</button>
+  </div>
+
+  <div class="quiz-results" id="quiz-results">
+    <div class="results-title">Quiz fullført!</div>
+    <div class="results-sub" id="results-sub"></div>
+    <div class="results-grid">
+      <div class="res-stat"><div class="res-num c" id="res-correct">0</div><div class="res-label">Riktige</div></div>
+      <div class="res-stat"><div class="res-num w" id="res-wrong">0</div><div class="res-label">Feil</div></div>
+      <div class="res-stat"><div class="res-num t" id="res-pct">0%</div><div class="res-label">Poengsum</div></div>
+    </div>
+    <button class="results-restart" onclick="startQuiz()">Ta quizen igjen</button>
+    <button class="results-review" onclick="showWrongList()">Se feilene mine</button>
+  </div>
+
+  <div class="wrong-list" id="wrong-list">
+    <div class="wrong-list-title">Ord du bommet på</div>
+    <div id="wrong-list-items"></div>
+  </div>
+</div>
+
+<script>
+/* ─── DATA ─── */
+const words = [
+  {it:"Uccidere",no:"å drepe",s:[
+    {it:"Nel film, il villain vuole <b>uccidere</b> il protagonista.",no:"I filmen vil skurken drepe hovedpersonen."},
+    {it:"È sbagliato <b>uccidere</b> gli animali per divertimento.",no:"Det er galt å drepe dyr for moro skyld."}
+  ]},
+  {it:"Vincitore",no:"vinner",s:[
+    {it:"Il <b>vincitore</b> della gara ha ricevuto una medaglia d'oro.",no:"Vinneren av løpet fikk en gullmedalje."},
+    {it:"Chi sarà il <b>vincitore</b> di questo concorso?",no:"Hvem blir vinneren av denne konkurransen?"}
+  ]},
+  {it:"Ferro",no:"jern / strykejern",s:[
+    {it:"Devo stirare la camicia con il <b>ferro</b>.",no:"Jeg må stryke skjorten med strykejernet."},
+    {it:"Il cancello è fatto di <b>ferro</b> antico.",no:"Porten er laget av gammelt jern."}
+  ]},
+  {it:"Usanza",no:"vane, skikk",s:[
+    {it:"È un'<b>usanza</b> locale mangiare insieme la domenica.",no:"Det er en lokal skikk å spise sammen på søndager."},
+    {it:"Questa <b>usanza</b> viene tramandata di generazione in generazione.",no:"Denne skikken overføres fra generasjon til generasjon."}
+  ]},
+  {it:"Cornice",no:"ramme",s:[
+    {it:"Ho comprato una bella <b>cornice</b> per la foto di famiglia.",no:"Jeg kjøpte en fin ramme til familiebildet."},
+    {it:"La <b>cornice</b> dorata rende il quadro ancora più elegante.",no:"Den forgylte rammen gjør maleriet enda mer elegant."}
+  ]},
+  {it:"Tenero",no:"mør, sart",s:[
+    {it:"Questa bistecca è molto <b>tenera</b> — si scioglie in bocca.",no:"Denne biffen er veldig mør — den smelter i munnen."},
+    {it:"Guarda che momento <b>tenero</b>: il bambino abbraccia il cane.",no:"Se for et sart øyeblikk: barnet klemmer hunden."}
+  ]},
+  {it:"Abbraccerai",no:"du vil klemme",s:[
+    {it:"Quando torni a casa, <b>abbraccerai</b> tutta la famiglia.",no:"Når du kommer hjem, vil du klemme hele familien."},
+    {it:"So che <b>abbraccerai</b> tua figlia appena la vedi.",no:"Jeg vet at du vil klemme datteren din så snart du ser henne."}
+  ]},
+  {it:"Causare",no:"å forårsake",s:[
+    {it:"La pioggia forte può <b>causare</b> allagamenti in città.",no:"Kraftig regn kan forårsake oversvømmelser i byen."},
+    {it:"Non voglio <b>causare</b> problemi a nessuno.",no:"Jeg vil ikke forårsake problemer for noen."}
+  ]},
+  {it:"Rimuovere",no:"å fjerne",s:[
+    {it:"Devi <b>rimuovere</b> la macchia prima che si asciughi.",no:"Du må fjerne flekken før den tørker."},
+    {it:"Il comune ha deciso di <b>rimuovere</b> il vecchio cartello.",no:"Kommunen bestemte seg for å fjerne det gamle skiltet."}
+  ]},
+  {it:"Indagare",no:"å etterforske",s:[
+    {it:"La polizia sta <b>indagando</b> sull'incidente di ieri sera.",no:"Politiet etterforsker hendelsen fra i går kveld."},
+    {it:"Dobbiamo <b>indagare</b> meglio prima di trarre conclusioni.",no:"Vi må undersøke bedre før vi trekker konklusjoner."}
+  ]},
+  {it:"Afferrare",no:"å gripe tak i",s:[
+    {it:"Ho cercato di <b>afferrare</b> la borsa prima che cadesse.",no:"Jeg prøvde å gripe tak i vesken før den falt."},
+    {it:"Il bambino ha <b>afferrato</b> la mano della mamma.",no:"Barnet grep tak i mammas hånd."}
+  ]},
+  {it:"Suggerimento",no:"forslag, tips",s:[
+    {it:"Hai qualche <b>suggerimento</b> per un buon ristorante?",no:"Har du noen forslag til en god restaurant?"},
+    {it:"Il suo <b>suggerimento</b> è stato molto utile.",no:"Tipset hans var veldig nyttig."}
+  ]},
+  {it:"Rimpianto",no:"anger, beklagelse",s:[
+    {it:"Sento un grande <b>rimpianto</b> per non aver studiato di più.",no:"Jeg kjenner stor anger for ikke å ha studert mer."},
+    {it:"Vivi senza <b>rimpianti</b> — fai quello che ami.",no:"Lev uten anger — gjør det du elsker."}
+  ]},
+  {it:"Rimpiangere",no:"å angre",s:[
+    {it:"Non voglio <b>rimpiangere</b> le scelte che ho fatto.",no:"Jeg vil ikke angre på valgene jeg har tatt."},
+    {it:"Potresti <b>rimpiangere</b> questa decisione in futuro.",no:"Du kan komme til å angre på denne beslutningen."}
+  ]},
+  {it:"Avvicinarsi",no:"å nærme seg",s:[
+    {it:"Le vacanze si stanno <b>avvicinando</b> — non vedo l'ora!",no:"Ferien nærmer seg — jeg gleder meg!"},
+    {it:"Non <b>avvicinarti</b> troppo al bordo della scogliera.",no:"Ikke nærm deg for mye kanten av klippen."}
+  ]},
+  {it:"Esprimere",no:"å uttrykke",s:[
+    {it:"È difficile <b>esprimere</b> a parole quanto sono felice.",no:"Det er vanskelig å uttrykke med ord hvor glad jeg er."},
+    {it:"Lui non sa <b>esprimere</b> bene i propri sentimenti.",no:"Han klarer ikke å uttrykke følelsene sine godt."}
+  ]},
+  {it:"Passatempo",no:"hobby, fritidsaktivitet",s:[
+    {it:"Il mio <b>passatempo</b> preferito è leggere romanzi storici.",no:"Favoritthobbyen min er å lese historiske romaner."},
+    {it:"Hai un <b>passatempo</b> che ti rilassa dopo il lavoro?",no:"Har du en hobby som får deg til å slappe av etter jobb?"}
+  ]},
+  {it:"Pesare",no:"å veie",s:[
+    {it:"Devo <b>pesare</b> gli ingredienti con precisione.",no:"Jeg må veie ingrediensene nøyaktig."},
+    {it:"Quanto <b>pesa</b> questo pacco?",no:"Hvor mye veier denne pakken?"}
+  ]},
+  {it:"Ridurre",no:"å redusere, kutte ned",s:[
+    {it:"Dobbiamo <b>ridurre</b> il consumo di plastica.",no:"Vi må redusere plastforbruket."},
+    {it:"Ha deciso di <b>ridurre</b> le ore di lavoro.",no:"Han/hun bestemte seg for å kutte ned på arbeidstiden."}
+  ]},
+  {it:"Togliere",no:"å fjerne, ta bort",s:[
+    {it:"Puoi <b>togliere</b> le scarpe prima di entrare?",no:"Kan du ta av deg skoene før du kommer inn?"},
+    {it:"Il dottore ha detto di <b>togliere</b> il cerotto dopo due giorni.",no:"Legen sa at jeg skulle fjerne bandasjen etter to dager."}
+  ]},
+  {it:"Quaderno",no:"notatblokk",s:[
+    {it:"Ho scritto tutti gli appunti sul mio <b>quaderno</b>.",no:"Jeg skrev alle notatene i notatboken min."},
+    {it:"Hai preso il <b>quaderno</b> di matematica?",no:"Tok du med mattenotatboken?"}
+  ]},
+  {it:"Cavaletto",no:"staffeli",s:[
+    {it:"Il pittore ha messo la tela sul <b>cavaletto</b>.",no:"Maleren satte lerretet på staffeliet."},
+    {it:"Ho comprato un <b>cavaletto</b> nuovo per il corso di pittura.",no:"Jeg kjøpte et nytt staffeli til malkurset."}
+  ]},
+  {it:"Pallido",no:"blek",s:[
+    {it:"Sei molto <b>pallida</b> oggi — stai bene?",no:"Du er veldig blek i dag — har du det bra?"},
+    {it:"Dopo la malattia, era ancora <b>pallido</b> e stanco.",no:"Etter sykdommen var han fortsatt blek og trett."}
+  ]},
+  {it:"Sbagliare",no:"å gjøre feil",s:[
+    {it:"Tutti possono <b>sbagliare</b> — l'importante è imparare.",no:"Alle kan gjøre feil — det viktige er å lære."},
+    {it:"Ho <b>sbagliato</b> strada e sono arrivato tardi.",no:"Jeg tok feil vei og kom for sent."}
+  ]},
+  {it:"Panchina",no:"benk",s:[
+    {it:"Mi sono seduto sulla <b>panchina</b> del parco a leggere.",no:"Jeg satte meg på benken i parken for å lese."},
+    {it:"La vecchia <b>panchina</b> sotto l'albero è il mio posto preferito.",no:"Den gamle benken under treet er favorittststedet mitt."}
+  ]},
+  {it:"Acceso",no:"på, tent, sterk",s:[
+    {it:"Hai lasciato la luce <b>accesa</b> tutta la notte.",no:"Du lot lyset stå på hele natten."},
+    {it:"Un rosso molto <b>acceso</b> — forse troppo vivace per questa stanza.",no:"En veldig sterk rød — kanskje for livlig for dette rommet."}
+  ]},
+  {it:"Suoceri",no:"svigerforeldre",s:[
+    {it:"Questo weekend andiamo a pranzo dai miei <b>suoceri</b>.",no:"Denne helgen skal vi på lunsj hos svigerforeldrene mine."},
+    {it:"I miei <b>suoceri</b> sono molto gentili e accoglienti.",no:"Svigerforeldrene mine er veldig snille og gjestfrie."}
+  ]},
+  {it:"Cognata",no:"svigerinne",s:[
+    {it:"Mia <b>cognata</b> abita a Milano e la vedo raramente.",no:"Svigerinnen min bor i Milano og jeg ser henne sjelden."},
+    {it:"La mia <b>cognata</b> ci ha aiutato a organizzare il matrimonio.",no:"Svigerinnen min hjalp oss med å organisere bryllupet."}
+  ]},
+  {it:"Legno",no:"tre, treverk",s:[
+    {it:"Il tavolo è fatto di <b>legno</b> di quercia.",no:"Bordet er laget av eiketre."},
+    {it:"Mi piace l'odore del <b>legno</b> nella vecchia capanna.",no:"Jeg liker lukten av treverk i den gamle hytten."}
+  ]},
+  {it:"Evviva",no:"hurra!",s:[
+    {it:"<b>Evviva</b>! Abbiamo vinto la partita!",no:"Hurra! Vi vant kampen!"},
+    {it:"Tutti hanno gridato <b>evviva</b> quando è arrivata la notizia.",no:"Alle ropte hurra da nyheten kom."}
+  ]},
+  {it:"Vetro",no:"glass (materiale)",s:[
+    {it:"Fai attenzione — ci sono pezzi di <b>vetro</b> per terra.",no:"Pass på — det er glassbiter på gulvet."},
+    {it:"La finestra di <b>vetro</b> si è rotta durante la tempesta.",no:"Glassvinduet knuste under stormen."}
+  ]},
+  {it:"Trucco",no:"sminke",s:[
+    {it:"Non indosso quasi mai il <b>trucco</b> nel fine settimana.",no:"Jeg bruker nesten aldri sminke i helgene."},
+    {it:"Si è tolta il <b>trucco</b> prima di andare a dormire.",no:"Hun tok av seg sminken før hun gikk og la seg."}
+  ]},
+  {it:"Prezzemolo",no:"persille",s:[
+    {it:"Aggiungi un po' di <b>prezzemolo</b> tritato sulla pasta.",no:"Tilsett litt hakket persille på pastaen."},
+    {it:"La ricetta richiede <b>prezzemolo</b> fresco, non secco.",no:"Oppskriften krever fersk persille, ikke tørket."}
+  ]},
+  {it:"Sindaco",no:"ordfører",s:[
+    {it:"Il <b>sindaco</b> ha inaugurato il nuovo parco oggi.",no:"Ordføreren åpnet den nye parken i dag."},
+    {it:"La <b>sindaca</b> ha parlato dei problemi del traffico in città.",no:"Ordføreren snakket om trafikkproblemene i byen."}
+  ]},
+  {it:"Caricare",no:"å laste opp",s:[
+    {it:"Devo <b>caricare</b> il documento sul sito prima delle dieci.",no:"Jeg må laste opp dokumentet på siden innen klokken ti."},
+    {it:"Hai già <b>caricato</b> le foto delle vacanze?",no:"Har du allerede lastet opp feriebildene?"}
+  ]},
+  {it:"Spina",no:"plugg",s:[
+    {it:"La <b>spina</b> del caricatore non entra in questa presa.",no:"Laderpluggen passer ikke i dette uttaket."},
+    {it:"Togli la <b>spina</b> quando non usi l'elettrodomestico.",no:"Trekk ut pluggen når du ikke bruker apparatet."}
+  ]},
+  {it:"Spento",no:"av, slukket",s:[
+    {it:"Il cellulare era <b>spento</b> e non ho sentito le chiamate.",no:"Mobilen var avslått og jeg hørte ikke anropene."},
+    {it:"Assicurati che il forno sia <b>spento</b> prima di uscire.",no:"Forsikre deg om at ovnen er avslått før du går ut."}
+  ]},
+  {it:"Pulsante",no:"knapp",s:[
+    {it:"Premi il <b>pulsante</b> verde per accendere la macchina.",no:"Trykk på den grønne knappen for å starte maskinen."},
+    {it:"C'è un <b>pulsante</b> di emergenza vicino all'uscita.",no:"Det er en nødknapp nær utgangen."}
+  ]},
+  {it:"Auricolare",no:"øreplugg",s:[
+    {it:"Ho perso un <b>auricolare</b> sul treno — che sfortuna!",no:"Jeg mistet en øreplugg på toget — så uheldig!"},
+    {it:"Con gli <b>auricolari</b> wireless posso muovermi liberamente.",no:"Med trådløse ørepropper kan jeg bevege meg fritt."}
+  ]},
+  {it:"Cravatta",no:"slips",s:[
+    {it:"Per il colloquio, ha indossato la camicia e la <b>cravatta</b>.",no:"Til jobbintervjuet tok han på seg skjorte og slips."},
+    {it:"Non mi piace portare la <b>cravatta</b> — mi sembra troppo formale.",no:"Jeg liker ikke å bruke slips — det virker for formelt for meg."}
+  ]},
+  {it:"Orecchino",no:"ørering",s:[
+    {it:"Ha perso un <b>orecchino</b> d'oro alla festa.",no:"Hun mistet en gullørering i festen."},
+    {it:"Questi <b>orecchini</b> sono un regalo di mia nonna.",no:"Disse øreringene er en gave fra bestemoren min."}
+  ]},
+  {it:"Coniglio",no:"kanin",s:[
+    {it:"Il mio <b>coniglio</b> si chiama Biscotto e ama le carote.",no:"Kaninen min heter Biscotto og elsker gulrøtter."},
+    {it:"Abbiamo visto un <b>coniglio</b> selvatico nel giardino.",no:"Vi så en villkanin i hagen."}
+  ]},
+  {it:"Anziano",no:"eldre",s:[
+    {it:"Il signore <b>anziano</b> seduto al bar racconta storie bellissime.",no:"Den eldre herren som sitter på kafeen, forteller nydelige historier."},
+    {it:"Bisogna rispettare le persone <b>anziane</b> e la loro esperienza.",no:"Man bør respektere eldre mennesker og deres erfaring."}
+  ]},
+  {it:"Acquistare",no:"å kjøpe",s:[
+    {it:"Ho deciso di <b>acquistare</b> una bicicletta nuova.",no:"Jeg bestemte meg for å kjøpe en ny sykkel."},
+    {it:"Puoi <b>acquistare</b> i biglietti online o alla stazione.",no:"Du kan kjøpe billettene på nett eller på stasjonen."}
+  ]},
+  {it:"Ricompensa",no:"belønning",s:[
+    {it:"Il cane ha ricevuto una <b>ricompensa</b> dopo ogni trucco.",no:"Hunden fikk en belønning etter hvert triks."},
+    {it:"La <b>ricompensa</b> per il lavoro duro è la soddisfazione.",no:"Belønningen for hardt arbeid er tilfredsstillelsen."}
+  ]},
+  {it:"Approssimare",no:"å estimere, tilnærme",s:[
+    {it:"Puoi <b>approssimare</b> il risultato se non hai una calcolatrice.",no:"Du kan estimere resultatet hvis du ikke har kalkulator."},
+    {it:"Il costo totale, <b>approssimativamente</b>, è di duecento euro.",no:"Den totale kostnaden er omtrent to hundre euro."}
+  ]},
+  {it:"Appunti",no:"notater",s:[
+    {it:"Ho preso molti <b>appunti</b> durante la lezione di italiano.",no:"Jeg tok mange notater under italienskundervisningen."},
+    {it:"Puoi mandarmi i tuoi <b>appunti</b>? Ho perso i miei.",no:"Kan du sende meg notatene dine? Jeg mistet mine."}
+  ]},
+  {it:"Concorso",no:"konkurranse",s:[
+    {it:"Ha partecipato a un <b>concorso</b> di fotografia e ha vinto.",no:"Han/hun deltok i en fotografikonkurranse og vant."},
+    {it:"Il <b>concorso</b> per il posto di lavoro era molto difficile.",no:"Konkurransen om stillingen var veldig hard."}
+  ]},
+  {it:"Condividere",no:"å dele",s:[
+    {it:"Vuoi <b>condividere</b> la pizza con me?",no:"Vil du dele pizzaen med meg?"},
+    {it:"Ho <b>condiviso</b> il documento con tutta la squadra.",no:"Jeg delte dokumentet med hele teamet."}
+  ]},
+  {it:"Forzare",no:"å tvinge",s:[
+    {it:"Non puoi <b>forzare</b> qualcuno a fare qualcosa che non vuole.",no:"Du kan ikke tvinge noen til å gjøre noe de ikke vil."},
+    {it:"Ha dovuto <b>forzare</b> la porta perché aveva perso le chiavi.",no:"Han/hun måtte tvinge opp døren fordi han/hun hadde mistet nøklene."}
+  ]},
+  {it:"Distintivo",no:"badge, navneskilt",s:[
+    {it:"Tutti i partecipanti alla conferenza portavano un <b>distintivo</b>.",no:"Alle deltakerne på konferansen hadde på seg et navneskilt."},
+    {it:"Il <b>distintivo</b> del poliziotto brillava al sole.",no:"Politibadgen skinte i solen."}
+  ]},
+  {it:"Precedente",no:"forrige, tidligere",s:[
+    {it:"Il <b>precedente</b> proprietario aveva dipinto le pareti di giallo.",no:"Den forrige eieren hadde malt veggene gule."},
+    {it:"Come nel caso <b>precedente</b>, dobbiamo agire con cautela.",no:"Som i det forrige tilfellet, må vi handle forsiktig."}
+  ]},
+  {it:"Bilancia",no:"vekt",s:[
+    {it:"Dove hai messo la <b>bilancia</b> da cucina?",no:"Hvor har du lagt kjøkkenvekten?"},
+    {it:"Ho controllato il peso sulla <b>bilancia</b> stamattina.",no:"Jeg sjekket vekten på vekten i morges."}
+  ]},
+  {it:"Muovere",no:"å flytte, bevege",s:[
+    {it:"Puoi <b>muovere</b> quella sedia un po' a sinistra?",no:"Kan du flytte den stolen litt til venstre?"},
+    {it:"Il bambino non riesce a <b>muovere</b> il braccio dopo la caduta.",no:"Barnet klarer ikke å bevege armen etter fallet."}
+  ]},
+  {it:"Scadenza",no:"deadline, utløpsdato",s:[
+    {it:"La <b>scadenza</b> per la consegna è venerdì prossimo.",no:"Fristen for innlevering er neste fredag."},
+    {it:"Controlla sempre la <b>scadenza</b> sullo yogurt prima di mangiarlo.",no:"Sjekk alltid utløpsdatoen på yoghurten før du spiser den."}
+  ]},
+  {it:"Correggere",no:"å korrigere, rette",s:[
+    {it:"L'insegnante ha <b>corretto</b> i compiti durante il weekend.",no:"Læreren rettet leksene i løpet av helgen."},
+    {it:"Puoi <b>correggere</b> questo paragrafo? C'è qualche errore.",no:"Kan du rette dette avsnittet? Det er noen feil."}
+  ]},
+  {it:"Largo",no:"bred, vid",s:[
+    {it:"Il corridoio è troppo <b>largo</b> per questo appartamento piccolo.",no:"Gangen er for bred for denne lille leiligheten."},
+    {it:"Abbiamo bisogno di un tavolo più <b>largo</b> per tutti gli ospiti.",no:"Vi trenger et bredere bord til alle gjestene."}
+  ]},
+  {it:"Arma",no:"våpen",s:[
+    {it:"Il detective ha trovato un'<b>arma</b> nascosta sotto il pavimento.",no:"Detektiven fant et skjult våpen under gulvet."},
+    {it:"La parola può essere un'<b>arma</b> molto potente.",no:"Ordet kan være et veldig kraftig våpen."}
+  ]},
+  {it:"Azienda",no:"selskap, bedrift",s:[
+    {it:"L'<b>azienda</b> ha assunto cinquanta nuovi dipendenti quest'anno.",no:"Selskapet ansatte femti nye ansatte i år."},
+    {it:"Lavoro per un'<b>azienda</b> internazionale da tre anni.",no:"Jeg har jobbet for et internasjonalt selskap i tre år."}
+  ]},
+  {it:"Raccontare",no:"å fortelle",s:[
+    {it:"Mi ha <b>raccontato</b> tutta la storia dall'inizio alla fine.",no:"Han/hun fortalte meg hele historien fra begynnelse til slutt."},
+    {it:"Puoi <b>raccontarmi</b> com'è andata la tua giornata?",no:"Kan du fortelle meg hvordan dagen din gikk?"}
+  ]},
+  {it:"Orgoglioso",no:"stolt",s:[
+    {it:"Sono molto <b>orgoglioso</b> di mio figlio — ha superato tutti gli esami.",no:"Jeg er veldig stolt av sønnen min — han besto alle eksamenene."},
+    {it:"La mamma era <b>orgogliosa</b> quando ha visto il risultato.",no:"Mamma var stolt da hun så resultatet."}
+  ]},
+  {it:"Incoraggiare",no:"å oppmuntre",s:[
+    {it:"Gli amici mi hanno <b>incoraggiato</b> a provare cose nuove.",no:"Vennene mine oppmuntret meg til å prøve nye ting."},
+    {it:"È importante <b>incoraggiare</b> i bambini quando imparano.",no:"Det er viktig å oppmuntre barn når de lærer."}
+  ]},
+  {it:"Funivia",no:"kabelbane",s:[
+    {it:"Abbiamo preso la <b>funivia</b> per arrivare in cima alla montagna.",no:"Vi tok kabelbanen for å komme til toppen av fjellet."},
+    {it:"La <b>funivia</b> era chiusa per manutenzione.",no:"Kabelbanen var stengt for vedlikehold."}
+  ]},
+  {it:"Sentiero",no:"sti",s:[
+    {it:"Abbiamo seguito un <b>sentiero</b> stretto attraverso il bosco.",no:"Vi fulgte en smal sti gjennom skogen."},
+    {it:"Il <b>sentiero</b> porta direttamente al lago.",no:"Stien fører direkte til innsjøen."}
+  ]},
+  {it:"Cima",no:"topp",s:[
+    {it:"Dalla <b>cima</b> della montagna si vede tutta la vallata.",no:"Fra toppen av fjellet ser man hele dalen."},
+    {it:"Ci vuole circa un'ora per arrivare alla <b>cima</b>.",no:"Det tar omtrent en time å nå toppen."}
+  ]},
+  {it:"Fischiare",no:"å plystre",s:[
+    {it:"Sa <b>fischiare</b> con le dita — è molto bravo!",no:"Han kan plystre med fingrene — han er veldig flink!"},
+    {it:"L'arbitro ha <b>fischiato</b> la fine della partita.",no:"Dommeren fløytet for slutt på kampen."}
+  ]},
+  {it:"Cartello",no:"skilt",s:[
+    {it:"Il <b>cartello</b> indicava la direzione per il centro città.",no:"Skiltet viste retningen til bysentrum."},
+    {it:"C'era un <b>cartello</b> con scritto 'Vietato fumare'.",no:"Det var et skilt med teksten 'Røyking forbudt'."}
+  ]},
+  {it:"Polvere",no:"støv",s:[
+    {it:"C'è molta <b>polvere</b> su questi mobili — devo spolverarli.",no:"Det er mye støv på disse møblene — jeg må støvsuge dem."},
+    {it:"La strada sterrata sollevava <b>polvere</b> ad ogni macchina.",no:"Den gruveien hvirvlet opp støv for hver bil."}
+  ]},
+  {it:"Scordare",no:"å glemme",s:[
+    {it:"Ho <b>scordato</b> di comprare il latte al supermercato.",no:"Jeg glemte å kjøpe melk på supermarkedet."},
+    {it:"Non <b>scordare</b> di portare l'ombrello — potrebbe piovere.",no:"Ikke glem å ta med paraplyen — det kan komme regn."}
+  ]},
+  {it:"Sogni d'oro",no:"drøm søtt / god natt",s:[
+    {it:"Buonanotte, tesoro — <b>sogni d'oro</b>!",no:"God natt, skatt — drøm søtt!"},
+    {it:"Prima di dormire, mi ha sussurrato: 'sogni d'oro'.",no:"Før jeg sovnet, hvisket han/hun: 'drøm søtt'."}
+  ]},
+  {it:"Tosse",no:"hoste",s:[
+    {it:"Ho una <b>tosse</b> terribile da tre giorni.",no:"Jeg har hatt en fryktelig hoste i tre dager."},
+    {it:"La <b>tosse</b> mi tiene sveglio di notte.",no:"Hosten holder meg våken om natten."}
+  ]},
+  {it:"Raffreddore",no:"forkjølelse",s:[
+    {it:"Ho preso un brutto <b>raffreddore</b> questa settimana.",no:"Jeg fikk en stygg forkjølelse denne uken."},
+    {it:"Bevi tanto tè caldo quando hai il <b>raffreddore</b>.",no:"Drikk mye varm te når du har forkjølelse."}
+  ]},
+  {it:"Pancia",no:"mage",s:[
+    {it:"Ho mal di <b>pancia</b> — forse ho mangiato troppo.",no:"Jeg har vondt i magen — kanskje jeg spiste for mye."},
+    {it:"Il bambino si è addormentato con la <b>pancia</b> piena.",no:"Barnet sovnet med full mage."}
+  ]},
+  {it:"Guarire",no:"å bli frisk",s:[
+    {it:"Spero di <b>guarire</b> presto — non mi sento bene.",no:"Jeg håper å bli frisk snart — jeg føler meg ikke bra."},
+    {it:"Il medico ha detto che <b>guarirai</b> in una settimana.",no:"Legen sa at du vil bli frisk i løpet av en uke."}
+  ]},
+  {it:"Tiepido",no:"lunken",s:[
+    {it:"L'acqua del bagno era <b>tiepida</b> — non abbastanza calda.",no:"Badevannnet var lunkent — ikke varmt nok."},
+    {it:"Bevi questa tisana <b>tiepida</b> — fa bene alla gola.",no:"Drikk denne urtete lunken — det er godt for halsen."}
+  ]},
+  {it:"Appendevamo",no:"vi hengte opp",s:[
+    {it:"Da bambini, <b>appendevamo</b> i disegni sulle pareti della cameretta.",no:"Som barn hengte vi opp tegningene på veggene på barnerommet."},
+    {it:"Ogni Natale, <b>appendevamo</b> le luci sul balcone.",no:"Hver jul hengte vi opp lysene på balkongen."}
+  ]},
+  {it:"Ciliegia",no:"kirsebær",s:[
+    {it:"Ho mangiato una ciotola di <b>ciliegie</b> fresche dal giardino.",no:"Jeg spiste en bolle med ferske kirsebær fra hagen."},
+    {it:"La torta di <b>ciliegie</b> della nonna è la mia preferita.",no:"Bestemors kirsebærkake er favoritten min."}
+  ]},
+  {it:"Trasmettere",no:"å sende, kringkaste",s:[
+    {it:"La partita verrà <b>trasmessa</b> in diretta alle otto di sera.",no:"Kampen vil bli sendt direkte klokken åtte om kvelden."},
+    {it:"Vogliono <b>trasmettere</b> messaggi positivi attraverso la musica.",no:"De ønsker å formidle positive budskap gjennom musikken."}
+  ]},
+  {it:"Risparmiare",no:"å spare",s:[
+    {it:"Sto cercando di <b>risparmiare</b> per comprare una macchina.",no:"Jeg prøver å spare for å kjøpe en bil."},
+    {it:"Se cucini a casa, <b>risparmi</b> tanti soldi.",no:"Hvis du lager mat hjemme, sparer du mange penger."}
+  ]},
+  {it:"Attendere",no:"å vente",s:[
+    {it:"Per favore, <b>attenda</b> un momento — arrivo subito.",no:"Vennligst vent et øyeblikk — jeg kommer straks."},
+    {it:"Ho dovuto <b>attendere</b> due ore alla fermata dell'autobus.",no:"Jeg måtte vente to timer ved bussholdeplassen."}
+  ]},
+  {it:"Il bucato",no:"klesvask, tøyvask",s:[
+    {it:"Devo fare <b>il bucato</b> — la cesta è piena.",no:"Jeg må ta klesvask — kurven er full."},
+    {it:"Ha steso <b>il bucato</b> sul balcone ad asciugare.",no:"Han/hun hengte ut klesvask på balkongen til tørk."}
+  ]},
+  {it:"Gallina",no:"høne",s:[
+    {it:"La <b>gallina</b> ha fatto un uovo questa mattina.",no:"Høna la et egg i morges."},
+    {it:"I nonni hanno cinque <b>galline</b> in giardino.",no:"Besteforeldrene har fem høner i hagen."}
+  ]},
+  {it:"Sgradevole",no:"ubehagelig",s:[
+    {it:"C'è un odore <b>sgradevole</b> in questa stanza — hai sentito?",no:"Det er en ubehagelig lukt i dette rommet — kjenner du det?"},
+    {it:"È stata un'esperienza molto <b>sgradevole</b> — non ci torno.",no:"Det var en veldig ubehagelig opplevelse — jeg drar ikke dit igjen."}
+  ]},
+  {it:"Collegamento",no:"kobling, forbindelse",s:[
+    {it:"C'è un <b>collegamento</b> diretto tra stress e mal di testa.",no:"Det er en direkte kobling mellom stress og hodepine."},
+    {it:"Il <b>collegamento</b> internet è lento oggi.",no:"Internettforbindelsen er treg i dag."}
+  ]},
+  {it:"Aumenti",no:"økninger",s:[
+    {it:"Gli <b>aumenti</b> dei prezzi hanno colpito molte famiglie.",no:"Prisøkningene har rammet mange familier."},
+    {it:"I lavoratori chiedono <b>aumenti</b> di stipendio.",no:"Arbeiderne krever lønnsøkninger."}
+  ]},
+  {it:"Andare su",no:"å gå opp",s:[
+    {it:"I prezzi delle case continuano ad <b>andare su</b>.",no:"Boligprisene fortsetter å gå opp."},
+    {it:"L'ascensore non funziona — dobbiamo <b>andare su</b> a piedi.",no:"Heisen fungerer ikke — vi må gå opp til fots."}
+  ]},
+  {it:"Appoggiare",no:"å støtte, lene mot",s:[
+    {it:"Ho <b>appoggiato</b> la bicicletta contro il muro.",no:"Jeg lente sykkelen mot veggen."},
+    {it:"Tutti i colleghi mi hanno <b>appoggiato</b> nella mia decisione.",no:"Alle kollegene støttet meg i beslutningen min."}
+  ]},
+  {it:"Rientrare",no:"å returnere, komme tilbake",s:[
+    {it:"Devo <b>rientrare</b> a casa entro le dieci.",no:"Jeg må komme hjem innen klokken ti."},
+    {it:"Quando <b>rientri</b> dalle vacanze?",no:"Når kommer du tilbake fra ferien?"}
+  ]},
+  {it:"Rifutare",no:"å nekte, avvise",s:[
+    {it:"Ha <b>rifiutato</b> l'offerta di lavoro perché lo stipendio era troppo basso.",no:"Han/hun avslo jobbtilbudet fordi lønnen var for lav."},
+    {it:"Non puoi <b>rifiutare</b> di rispondere — è obbligatorio.",no:"Du kan ikke nekte å svare — det er obligatorisk."}
+  ]},
+  {it:"Riduciamo",no:"vi kutter ned / vi reduserer",s:[
+    {it:"Quest'anno <b>riduciamo</b> le spese non necessarie.",no:"I år kutter vi ned på unødvendige utgifter."},
+    {it:"Se <b>riduciamo</b> i rifiuti, aiutiamo l'ambiente.",no:"Hvis vi reduserer avfall, hjelper vi miljøet."}
+  ]},
+  {it:"Raccontarglielo",no:"å fortelle ham/henne det",s:[
+    {it:"Devo <b>raccontarglielo</b> prima che lo scopra da solo.",no:"Jeg må fortelle ham det før han finner ut av det selv."},
+    {it:"Non so come <b>raccontarglielo</b> senza farlo preoccupare.",no:"Jeg vet ikke hvordan jeg skal fortelle henne det uten å bekymre henne."}
+  ]}
+];
+
+/* ─── SHARED UTILS ─── */
+function stripHtml(s) { return s.replace(/<[^>]+>/g, ''); }
+
+function speakerSvg(w, h) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="${w}" height="${h}"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+}
+
+/* iOS-robust TTS:
+   - iOS Safari pauses speechSynthesis when tab goes to background; resume on focus
+   - Voices may not be loaded yet on first call; wait for voiceschanged
+   - iOS requires utterances to be triggered from a user gesture (we do)
+   - Use a keepalive interval to prevent iOS from killing long utterances
+*/
+let ttsSupported = ('speechSynthesis' in window);
+let iosKeepAlive = null;
+
+function getItalianVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.lang === 'it-IT') ||
+         voices.find(v => v.lang.startsWith('it')) ||
+         null;
+}
+
+function showTTSBanner(msg) {
+  const b = document.getElementById('tts-warning');
+  if (b) { b.textContent = msg; b.style.display = 'block'; }
+}
+
+function speak(text, btn) {
+  if (!ttsSupported) {
+    showTTSBanner('Nettleseren din støtter ikke tekst-til-tale. Prøv Safari på iOS 14+.');
+    return;
+  }
+
+  // Stop if already speaking same button
+  window.speechSynthesis.cancel();
+  clearInterval(iosKeepAlive);
+
+  if (btn && btn.classList.contains('speaking')) {
+    btn.classList.remove('speaking');
+    return;
+  }
+  document.querySelectorAll('.speaking').forEach(el => el.classList.remove('speaking'));
+
+  const doSpeak = () => {
+    const voice = getItalianVoice();
+    if (!voice) {
+      showTTSBanner('Italiensk stemme ikke funnet. Gå til Innstillinger → Tilgjengelighet → Opplest innhold → Stemmer → Italiensk og last ned en stemme.');
+      return;
+    }
+
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'it-IT';
+    utt.rate = 0.88;
+    utt.voice = voice;
+
+    if (btn) {
+      btn.classList.add('speaking');
+      utt.onend = () => { btn.classList.remove('speaking'); clearInterval(iosKeepAlive); };
+      utt.onerror = () => { btn.classList.remove('speaking'); clearInterval(iosKeepAlive); };
+    }
+
+    window.speechSynthesis.speak(utt);
+
+    // iOS Safari pauses synthesis after ~15s — keepalive trick
+    iosKeepAlive = setInterval(() => {
+      if (!window.speechSynthesis.speaking) { clearInterval(iosKeepAlive); return; }
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    }, 10000);
+  };
+
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    doSpeak();
+  } else {
+    // Voices not loaded yet — wait for event (common on first iOS load)
+    window.speechSynthesis.addEventListener('voiceschanged', doSpeak, { once: true });
+    // Fallback if event never fires
+    setTimeout(() => { if (getItalianVoice()) doSpeak(); }, 500);
+  }
+}
+
+// Resume if iOS pauses synthesis when app comes to foreground
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && ttsSupported && window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+  }
+});
+
+/* ─── TAB SWITCHING ─── */
+let activeTab = 'cards';
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('cards-section').style.display = tab === 'cards' ? 'block' : 'none';
+  document.getElementById('quiz-section').style.display  = tab === 'quiz'  ? 'block' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', ['cards','quiz'][i] === tab));
+  if (tab === 'quiz' && !quizStarted) startQuiz();
+}
+
+/* ══════════════════════════════════════
+   PART 1 — KONTEKSTKORT
+══════════════════════════════════════ */
+let filtered = [...words];
+let cardIdx = 0;
+const known = new Set();
+
+function doSearch() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  filtered = q ? words.filter(w => w.it.toLowerCase().includes(q) || w.no.toLowerCase().includes(q)) : [...words];
+  cardIdx = 0;
+  renderCard();
+}
+
+function go(d) {
+  cardIdx = Math.max(0, Math.min(filtered.length - 1, cardIdx + d));
+  if (ttsSupported) { window.speechSynthesis.cancel(); clearInterval(iosKeepAlive); }
+  renderCard();
+}
+
+function speakCardWord() { speak(filtered[cardIdx].it, document.getElementById('word-speak-btn')); }
+function speakCardSent(i) { speak(stripHtml(filtered[cardIdx].s[i].it), document.getElementById('sent-speak-' + i)); }
+function toggleKnown() {
+  const w = filtered[cardIdx].it;
+  known.has(w) ? known.delete(w) : known.add(w);
+  renderCard();
+}
+
+function renderCard() {
+  const main = document.getElementById('cards-main');
+  if (!filtered.length) {
+    main.innerHTML = '<div class="no-results">Ingen ord funnet.</div>';
+    document.getElementById('nav-row').style.display = 'none';
+    document.getElementById('prog-label').textContent = '0 / ' + words.length;
+    document.getElementById('prog-fill').style.width = '0%';
+    return;
+  }
+  document.getElementById('nav-row').style.display = 'flex';
+  const w = filtered[cardIdx];
+  const pct = Math.round((cardIdx + 1) / filtered.length * 100);
+  document.getElementById('prog-label').textContent = (cardIdx + 1) + ' / ' + filtered.length;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('btn-prev').disabled = cardIdx === 0;
+  document.getElementById('btn-next').disabled = cardIdx === filtered.length - 1;
+
+  const sents = w.s.map((s, i) => `
+    <div class="sent-block">
+      <div class="sent-row">
+        <div class="sent-texts">
+          <div class="sent-it">${s.it}</div>
+          <div class="sent-no">${s.no}</div>
+        </div>
+        <button class="sent-speak" id="sent-speak-${i}" onclick="speakCardSent(${i})">${speakerSvg(13,13)}</button>
+      </div>
+    </div>`).join('');
+
+  const isKnown = known.has(w.it);
+  main.innerHTML = `
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="it-word">${w.it}</div>
+          <div class="no-word">${w.no}</div>
+        </div>
+        <button class="speak-btn" id="word-speak-btn" onclick="speakCardWord()">${speakerSvg(18,18)}</button>
+      </div>
+      <div class="sentences">${sents}</div>
+      <button class="known-badge ${isKnown ? 'marked' : ''}" onclick="toggleKnown()">
+        <span class="known-dot"></span>${isKnown ? 'Kan dette' : 'Merk som lært'}
+      </button>
+    </div>`;
+}
+
+/* ══════════════════════════════════════
+   PART 2 — QUIZ
+══════════════════════════════════════ */
+let quizStarted = false;
+let quizDeck = [];
+let quizIdx = 0;
+let qCorrect = 0;
+let qWrong = 0;
+let qAnswered = false;
+let wrongWords = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getDisractors(correct, count) {
+  const pool = words.filter(w => w.it !== correct.it);
+  const picked = shuffle(pool).slice(0, count);
+  return picked.map(w => w.no);
+}
+
+function startQuiz() {
+  quizStarted = true;
+  quizDeck = shuffle(words);
+  quizIdx = 0; qCorrect = 0; qWrong = 0; wrongWords = [];
+  document.getElementById('quiz-results').style.display = 'none';
+  document.getElementById('quiz-card-area').style.display = 'block';
+  document.getElementById('wrong-list').style.display = 'none';
+  updateQuizStats();
+  renderQuestion();
+}
+
+function updateQuizStats() {
+  document.getElementById('q-correct').textContent = qCorrect;
+  document.getElementById('q-wrong').textContent = qWrong;
+  document.getElementById('q-remain').textContent = Math.max(0, quizDeck.length - quizIdx);
+  const pct = Math.round(quizIdx / quizDeck.length * 100);
+  document.getElementById('quiz-prog-fill').style.width = pct + '%';
+}
+
+function renderQuestion() {
+  if (quizIdx >= quizDeck.length) { showResults(); return; }
+  qAnswered = false;
+  const w = quizDeck[quizIdx];
+
+  document.getElementById('q-word').textContent = w.it;
+  document.getElementById('q-feedback').style.display = 'none';
+  document.getElementById('q-next-btn').style.display = 'none';
+
+  const distractors = getDisractors(w, 2);
+  const options = shuffle([w.no, ...distractors]);
+  const letters = ['A', 'B', 'C'];
+
+  document.getElementById('q-options').innerHTML = options.map((opt, i) => `
+    <button class="quiz-option" onclick="selectAnswer(this, '${opt.replace(/'/g,"\\'")}', '${w.no.replace(/'/g,"\\'")}')">
+      <span class="opt-letter">${letters[i]}</span>
+      ${opt}
+    </button>`).join('');
+
+  updateQuizStats();
+}
+
+function quizSpeak() {
+  if (quizIdx >= quizDeck.length) return;
+  speak(quizDeck[quizIdx].it, document.getElementById('q-speak-btn'));
+}
+
+function selectAnswer(btn, chosen, correct) {
+  if (qAnswered) return;
+  qAnswered = true;
+
+  const options = document.querySelectorAll('.quiz-option');
+  options.forEach(o => o.classList.add('answered'));
+
+  const fb = document.getElementById('q-feedback');
+  const nextBtn = document.getElementById('q-next-btn');
+
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    qCorrect++;
+    fb.className = 'quiz-feedback correct';
+    fb.textContent = 'Riktig!';
+  } else {
+    btn.classList.add('wrong');
+    qWrong++;
+    wrongWords.push(quizDeck[quizIdx]);
+    options.forEach(o => {
+      if (o.textContent.trim().replace(/^[ABC]\s*/,'') === correct || o.innerHTML.includes(correct)) {
+        const txt = o.querySelector('.opt-letter').nextSibling;
+        if (txt && txt.textContent && txt.textContent.trim().startsWith(correct.substring(0,4))) {
+          o.classList.add('show-correct');
+        }
+      }
+    });
+    options.forEach(o => {
+      const label = o.textContent.replace(/^\s*[ABC]\s*/,'').trim();
+      if (label === correct) o.classList.add('show-correct');
+    });
+    fb.className = 'quiz-feedback wrong';
+    fb.innerHTML = `Feil — riktig svar: <strong>${correct}</strong>`;
+  }
+
+  fb.style.display = 'block';
+  nextBtn.style.display = 'block';
+  nextBtn.textContent = quizIdx + 1 < quizDeck.length ? 'Neste spørsmål →' : 'Se resultatet →';
+  updateQuizStats();
+  quizIdx++;
+}
+
+function nextQuestion() {
+  if (ttsSupported) { window.speechSynthesis.cancel(); clearInterval(iosKeepAlive); }
+  renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('quiz-card-area').style.display = 'none';
+  const results = document.getElementById('quiz-results');
+  results.style.display = 'block';
+  const total = quizDeck.length;
+  const pct = Math.round(qCorrect / total * 100);
+  let emoji = pct >= 90 ? 'Fantastisk!' : pct >= 70 ? 'Bra jobbet!' : pct >= 50 ? 'Ikke verst!' : 'Øv litt mer!';
+  document.getElementById('results-sub').textContent = emoji + ' Du svarte på ' + total + ' spørsmål.';
+  document.getElementById('res-correct').textContent = qCorrect;
+  document.getElementById('res-wrong').textContent = qWrong;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('quiz-prog-fill').style.width = '100%';
+  updateQuizStats();
+}
+
+function showWrongList() {
+  const el = document.getElementById('wrong-list');
+  const items = document.getElementById('wrong-list-items');
+  if (!wrongWords.length) { items.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;text-align:center;padding:1rem">Du bommet ikke på noen ord!</div>'; }
+  else {
+    items.innerHTML = wrongWords.map(w => `
+      <div class="wrong-item">
+        <div class="wrong-item-it">${w.it}</div>
+        <div class="wrong-item-no">${w.no}</div>
+      </div>`).join('');
+  }
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ─── INIT ─── */
+// Warm up voices on page load (helps iOS load them before first tap)
+if (ttsSupported) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.addEventListener('voiceschanged', () => {});
+}
+renderCard();
+</script>
+</body>
+</html>
